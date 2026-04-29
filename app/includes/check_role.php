@@ -1,19 +1,26 @@
 <?php
-function requireLogin() {
-    if (!isset($_SESSION['user'])) {
-        header('Location: ../index.php');
-        exit;
-    }
-}
+// check_role.php - Vérification des rôles
+require_once __DIR__ . '/config.php';
 
 function requireRole($role) {
-    requireLogin();
-    if ($_SESSION['user']['role'] !== $role) {
-        header('Location: ../index.php?error=unauthorized');
+    if (!isLoggedIn()) {
+        header('Location: /app/auth/connexion.php');
+        exit;
+    }
+    if ($_SESSION['user_role'] !== $role && $_SESSION['user_role'] !== 'admin') {
+        // Rediriger vers le dashboard adapté
+        header('Location: /app/dashboard/' . $_SESSION['user_role'] . '.php');
         exit;
     }
 }
 
-function isAdmin()        { return isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin'; }
-function isOrganisateur() { return isset($_SESSION['user']) && $_SESSION['user']['role'] === 'organisateur'; }
-function isParticipant()  { return isset($_SESSION['user']) && $_SESSION['user']['role'] === 'participant'; }
+// Vérification spécifique pour admin
+function requireAdmin() {
+    requireRole('admin');
+}
+
+// Vérification pour organisateur
+function requireOrganisateur() {
+    requireRole('organisateur');
+}
+?>
